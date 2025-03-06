@@ -13,7 +13,14 @@ class StudentController extends Controller
         $sortDesc = $request->input('sort_desc', 'asc');
         $perPage = $request->input('per_page', 20);
 
-        $students = Student::orderBy($sortBy, $sortDesc)->paginate($perPage);
+        $search = $request->input('search');
+
+        $students = Student::orderBy($sortBy, $sortDesc)
+            ->where(function($query) use ($search) {
+                $query->where('first_name', 'like', '%' . $search . '%')
+                      ->orWhere('last_name', 'like', '%' . $search . '%');
+            })
+            ->paginate($perPage);
 
         return response()->json($students);
     }
